@@ -12,9 +12,9 @@ func (gw *GenAIGateway) SendMessage(ctx context.Context, messages []chat.Message
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	req := buildRequest(messages)
+	req, cfg := buildRequest(messages)
 
-	response, err := gw.client.Models.GenerateContent(ctx, "gemini-2.0-flash", req, nil)
+	response, err := gw.client.Models.GenerateContent(ctx, "gemini-2.0-flash", req, cfg)
 	if err != nil {
 		return chat.Message{}, err
 	}
@@ -24,30 +24,33 @@ func (gw *GenAIGateway) SendMessage(ctx context.Context, messages []chat.Message
 	return message, nil
 }
 
-func buildRequest(messages []chat.Message) []*genai.Content {
-	req := []*genai.Content{
-		{
-			Role:  genai.RoleUser,
-			Parts: []*genai.Part{{Text: "Answer with maximum 2 sentences"}},
-		},
-	}
+func buildRequest(messages []chat.Message) ([]*genai.Content, *genai.GenerateContentConfig) {
+	requests := make([]*genai.Content, 0, len(messages))
 
 	for _, m := range messages {
 		switch m.Role {
 		case chat.RoleUser:
-			req = append(req, &genai.Content{
+			requests = append(requests, &genai.Content{
 				Role:  genai.RoleUser,
 				Parts: []*genai.Part{{Text: m.Content}},
 			})
 		case chat.RoleAssistant:
-			req = append(req, &genai.Content{
+			requests = append(requests, &genai.Content{
 				Role:  genai.RoleModel,
 				Parts: []*genai.Part{{Text: m.Content}},
 			})
 		}
 	}
 
-	return req
+	config := &genai.GenerateContentConfig{
+		SystemInstruction: &genai.Content{
+			Parts: []*genai.Part{
+				{Text: "Answer with 2 sentences maximum."},
+			},
+		},
+	}
+
+	return requests, config
 }
 
 func toEntity(userID, chatID int64, resp *genai.GenerateContentResponse) chat.Message {

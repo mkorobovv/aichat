@@ -26,7 +26,9 @@ func (ctr *Controller) SendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(message)
+	dtoOut := ToResponse(message)
+
+	err = json.NewEncoder(w).Encode(dtoOut)
 	if err != nil {
 		ctr.handleError(w, err)
 
@@ -45,5 +47,25 @@ func (dto *RequestSendMessage) ToRequest() chat.RequestCreateMessage {
 		ChatID:  dto.ChatID,
 		UserID:  dto.UserID,
 		Content: dto.Content,
+	}
+}
+
+type ResponseSendMessage struct {
+	MessageID int64  `json:"message_id"`
+	ChatID    int64  `json:"chat_id"`
+	Role      string `json:"role"`
+	UserID    int64  `json:"user_id"`
+	Content   string `json:"content"`
+	CreatedAt string `json:"created_at"`
+}
+
+func ToResponse(message chat.Message) ResponseSendMessage {
+	return ResponseSendMessage{
+		MessageID: message.MessageID,
+		ChatID:    message.ChatID,
+		Role:      message.Role,
+		UserID:    message.UserID,
+		Content:   message.Content,
+		CreatedAt: message.CreatedAt.String(),
 	}
 }
