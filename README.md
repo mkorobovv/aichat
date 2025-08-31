@@ -44,5 +44,12 @@ docker-compose up --build
 **Response body**
 
 ```json5
-
+{
+  "message_id": 17,
+  "chat_id": 11,
+  "role": "assistant",
+  "user_id": 12,
+  "content": "some reply",
+  "created_at": "2025-08-31T16:04:04+10:00"
+}
 ```

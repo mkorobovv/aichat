@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/mkorobovv/aichat/internal/app/domain/chat"
 )
@@ -12,6 +13,12 @@ func (ctr *Controller) SendMessage(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&dtoIn)
 	if err != nil {
+		err = responseError{
+			Kind:   "validation",
+			Detail: err.Error(),
+			status: http.StatusBadRequest,
+		}
+
 		ctr.handleError(w, err)
 
 		return
@@ -21,6 +28,12 @@ func (ctr *Controller) SendMessage(w http.ResponseWriter, r *http.Request) {
 
 	message, err := ctr.chatUC.SendMessage(r.Context(), req)
 	if err != nil {
+		err = responseError{
+			Kind:   "business",
+			Detail: err.Error(),
+			status: http.StatusInternalServerError,
+		}
+
 		ctr.handleError(w, err)
 
 		return
@@ -30,6 +43,12 @@ func (ctr *Controller) SendMessage(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewEncoder(w).Encode(dtoOut)
 	if err != nil {
+		err = responseError{
+			Kind:   "business",
+			Detail: err.Error(),
+			status: http.StatusInternalServerError,
+		}
+
 		ctr.handleError(w, err)
 
 		return
@@ -66,6 +85,6 @@ func ToResponse(message chat.Message) ResponseSendMessage {
 		Role:      message.Role,
 		UserID:    message.UserID,
 		Content:   message.Content,
-		CreatedAt: message.CreatedAt.String(),
+		CreatedAt: message.CreatedAt.Format(time.RFC3339),
 	}
 }
