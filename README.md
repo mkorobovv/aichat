@@ -1,2 +1,1 @@
-# aichat
-AI Chat
+# AI Chat

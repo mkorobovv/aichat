@@ -1,0 +1,28 @@
+gateways:
+  openAIGateway:
+    clientSecret: "OPENAI_CLIENT_SECRET"
+  genAIGateway:
+    clientSecret: "GENAI_CLIENT_SECRET"
+
+databases:
+  chat:
+    host: "CHAT_HOST"
+    port: "CHAT_PORT"
+    user: "CHAT_USER"
+    password: "CHAT_PASSWORD"
+    name: "CHAT_NAME"
+    timezone: "Europe/Moscow"
+
+httpAdapter:
+  server:
+    port: ":8080"
+    startMsg: "http-adapter started"
+    readTimeout: 30s
+    writeTimeout: 500s
+    readHeaderTimeout: 30s
+    shutdownTimeout: 3s
+  router:
+    shutdown:
+      duration: 15s
+    timeout:
+      duration: 60s

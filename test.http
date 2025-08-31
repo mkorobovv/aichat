@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/v1/send
+Content-Type: application/json
+
+{
+  "chat_id": 2,
+  "user_id": 12,
+  "content": "What is GPT?"
+}
